@@ -1,0 +1,47 @@
+name: Food Delivery CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-test-package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install --ignore-scripts
+
+      - name: Build application
+        run: |
+          mkdir -p build
+          cp index.html style.css script.js build/
+
+      - name: Test application files
+        run: |
+          test -f build/index.html
+          test -f build/style.css
+          test -f build/script.js
+          echo "All application files passed the test."
+
+      - name: Package application
+        run: |
+          tar -czf food-delivery-app.tar.gz build/
+
+      - name: Upload packaged application
+        uses: actions/upload-artifact@v4
+        with:
+          name: food-delivery-app
+          path: food-delivery-app.tar.gz
